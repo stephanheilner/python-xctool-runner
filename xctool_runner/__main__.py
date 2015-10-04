@@ -10,7 +10,7 @@ def main():
     parser.add_argument('action', nargs='+', choices=['build', 'test'])
     parser.add_argument('--workspace', required=True, help='Workspace to build and test.')
     parser.add_argument('--scheme', required=True, help='Scheme to build and test.')
-    parser.add_argument('--target', required=True, help='Test target.')
+    parser.add_argument('--target', help='Test target.')
     parser.add_argument('--retries', type=int, default=4, help='The maximum number of times to retry a set of tests without progress.')
     parser.add_argument('--timeout', type=int, default=120, help='The number of seconds to wait without output before failing a test run.')
     parser.add_argument('--partition', type=int, default=0, help='The partition index to run.')
@@ -28,8 +28,11 @@ def main():
 
     for action in args.action:
         if action == 'build':
-            build_tests(xctool_path=xctool_path, workspace=args.workspace, scheme=args.scheme, target=args.target, build_path=build_path, timeout=args.timeout)
+            build_tests(xctool_path=xctool_path, workspace=args.workspace, scheme=args.scheme, build_path=build_path, timeout=args.timeout)
         elif action == 'test':
+            if not args.target:
+                print_message('Target is required when testing')
+                exit(1)
             run_tests(xctool_path=xctool_path, workspace=args.workspace, scheme=args.scheme, target=args.target, build_path=build_path, partition=args.partition, partition_count=args.partition_count, devices=parse_devices(args.devices), retries=args.retries, timeout=args.timeout)
 
 
@@ -54,16 +57,15 @@ def parse_devices(string):
     return devices
 
 
-def build_tests(xctool_path, workspace, scheme, build_path, target, timeout):
+def build_tests(xctool_path, workspace, scheme, build_path, timeout):
     print_message('Building tests')
 
     try:
-        script = '{xctool_path} -workspace "{workspace}" -scheme "{scheme}" -sdk iphonesimulator CONFIGURATION_BUILD_DIR="{build_path}" -derivedDataPath="{build_path}" build-tests -only {target} -reporter pretty'.format(
+        script = '{xctool_path} -workspace "{workspace}" -scheme "{scheme}" -sdk iphonesimulator CONFIGURATION_BUILD_DIR="{build_path}" -derivedDataPath="{build_path}" build-tests -reporter pretty'.format(
                 xctool_path=xctool_path,
                 workspace=workspace,
                 scheme=scheme,
                 build_path=build_path,
-                target=target,
             )
         print script
         script_result, _ = run_script(script, timeout)
