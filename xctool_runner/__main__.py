@@ -67,7 +67,6 @@ def build_tests(xctool_path, workspace, scheme, build_path, timeout):
                 scheme=scheme,
                 build_path=build_path,
             )
-        print script
         script_result, _ = run_script(script, timeout)
 
         if script_result != 0:
@@ -93,7 +92,6 @@ def get_all_tests(xctool_path, workspace, scheme, build_path, target, timeout):
                 target=target,
                 stream_json_path=stream_json_path,
             )
-        print script
         script_result, _ = run_script(script, timeout)
 
         if script_result != 0:
@@ -169,7 +167,6 @@ def run_tests(xctool_path, workspace, scheme, build_path, target, partition, par
                         target='{target}:{tests}'.format(target=target, tests=','.join(['{}/{}'.format(test['class_name'], test['method_name']) for test in remaining_tests])),
                         stream_json_path=stream_json_path,
                     )
-                print script
                 run_script(script, timeout)
 
             except TimeoutError:

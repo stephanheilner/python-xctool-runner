@@ -2,6 +2,7 @@ import os
 import re
 import signal
 import subprocess
+import sys
 import tempfile
 import time
 
@@ -16,6 +17,9 @@ signal.signal(signal.SIGALRM, timeout_handler)
 
 
 def run_script(script, timeout):
+    print script
+    sys.stdout.flush()
+
     try:
         # Create temporary files in which to store the script and output
         script_fd, script_path = tempfile.mkstemp()
