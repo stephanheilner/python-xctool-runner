@@ -16,6 +16,7 @@ def main():
     parser.add_argument('--partition', type=int, default=0, help='The partition index to run.')
     parser.add_argument('--partition-count', dest='partition_count', type=int, default=1, help='The total number of partitions.')
     parser.add_argument('--devices', default='iPhone 5,9.0;iPad 2,9.0')
+
     args = parser.parse_args()
 
     xctool_path = '/usr/local/bin/xctool'
@@ -48,7 +49,7 @@ def parse_devices(string):
     devices = []
     for name, version in [device_spec.split(',', 1) for device_spec in string.split(';')]:
         devices.append(dict(
-            destination='platform=iOS Simulator,OS={version},name={name}'.format(version=version, name=name),
+            destination='platform=iOS Simulator,OS={version},id={name}'.format(version=version, name=name),
             description='{name} / iOS {version}'.format(version=version, name=name),
             name=name,
             version=version,
@@ -158,7 +159,7 @@ def run_tests(xctool_path, workspace, scheme, build_path, target, partition, par
                 pass
 
             try:
-                script = '{xctool_path} -workspace "{workspace}" -scheme "{scheme}" -sdk iphonesimulator -destination "{destination}" CONFIGURATION_BUILD_DIR="{build_path}" -derivedDataPath="{build_path}" run-tests -freshSimulator -resetSimulator -only {target} -reporter pretty -reporter json-stream:{stream_json_path}'.format(
+                script = '{xctool_path} -workspace "{workspace}" -scheme "{scheme}" -sdk iphonesimulator -destination "{destination}" CONFIGURATION_BUILD_DIR="{build_path}" -derivedDataPath="{build_path}" run-tests -parallelize -logicTestBucketSize 20 -freshSimulator -resetSimulator -only {target} -reporter pretty -reporter json-stream:{stream_json_path}'.format(
                         xctool_path=xctool_path,
                         workspace=workspace,
                         scheme=scheme,
